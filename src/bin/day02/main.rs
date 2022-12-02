@@ -47,15 +47,36 @@ fn parse_round(round: Vec<RockPaperScissors>) -> u32 {
     }
 }
 
+fn ultra_top_secret_strategy(round: Vec<RockPaperScissors>) -> u32 {
+    match *round {
+        [RockPaperScissors::ROCK, RockPaperScissors::ROCK] => 3,
+        [RockPaperScissors::ROCK, RockPaperScissors::PAPER] => 4,
+        [RockPaperScissors::ROCK, RockPaperScissors::SCISSORS] => 8,
+        [RockPaperScissors::PAPER, RockPaperScissors::ROCK] => 1,
+        [RockPaperScissors::PAPER, RockPaperScissors::PAPER] => 5,
+        [RockPaperScissors::PAPER, RockPaperScissors::SCISSORS] => 9,
+        [RockPaperScissors::SCISSORS, RockPaperScissors::ROCK] => 2,
+        [RockPaperScissors::SCISSORS, RockPaperScissors::PAPER] => 6,
+        [RockPaperScissors::SCISSORS, RockPaperScissors::SCISSORS] => 7,
+        _ => 0,
+    }
+}
+
 fn main() {
-    let round_records: Vec<Vec<RockPaperScissors>> =
-        read_round_records("../../../data/input02.prod");
+    let round_records: Vec<Vec<RockPaperScissors>> = read_round_records("./data/input02.prod");
 
     let total_score: u32 = round_records
         .iter()
         .map(|round| parse_round(round.to_vec()))
         .sum();
 
+    let ultra_total_score: u32 = round_records
+        .iter()
+        .map(|round| ultra_top_secret_strategy(round.to_vec()))
+        .sum();
+
     // println!("{:?}", round_records);
     println!("{:?}", total_score);
+
+    println!("The ultra final score is {:?}", ultra_total_score);
 }

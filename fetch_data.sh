@@ -23,4 +23,4 @@ mkdir -p "$SCRIPT_DIR/data"
 curl -s "https://adventofcode.com/2022/day/$(($1 + 0))/input" \
     --cookie "session=$AOC_SESSION" \
     -H 'User-Agent: Bash script to fetch data from advent of code'  \
-    | tee "$SCRIPT_DIR/data/input$1.txt"
+    | tee "$SCRIPT_DIR/data/input$1.prod"

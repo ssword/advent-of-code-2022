@@ -3,36 +3,59 @@ use std::fs::read_to_string;
 use std::path::Path;
 use std::str::FromStr;
 
-pub fn read_num_records<T: AsRef<Path>, U: FromStr>(pathname: T) -> Vec<Vec<U>>
-where
-    <U as FromStr>::Err: Debug,
-{
+#[derive(Debug, Clone)]
+enum RockPaperScissors {
+    ROCK,
+    PAPER,
+    SCISSORS,
+    None,
+}
+
+fn read_round_records(pathname: &str) -> Vec<Vec<RockPaperScissors>> {
     read_to_string(pathname)
         .expect("unable to open file")
-        .split("\n\n")
+        .lines()
         .map(|s| {
-            s.split("\n")
-                .filter_map(|num| num.parse::<U>().ok())
-                .collect::<Vec<U>>()
+            s.split(" ")
+                .filter_map(|choice| Some(parse_choice(&choice)))
+                .collect()
         })
         .collect()
 }
 
+fn parse_choice(choice: &str) -> RockPaperScissors {
+    match choice {
+        "A" | "X" => RockPaperScissors::ROCK,
+        "B" | "Y" => RockPaperScissors::PAPER,
+        "C" | "Z" => RockPaperScissors::SCISSORS,
+        _ => RockPaperScissors::None,
+    }
+}
+
+fn parse_round(round: Vec<RockPaperScissors>) -> u32 {
+    match *round {
+        [RockPaperScissors::ROCK, RockPaperScissors::ROCK] => 4,
+        [RockPaperScissors::ROCK, RockPaperScissors::PAPER] => 8,
+        [RockPaperScissors::ROCK, RockPaperScissors::SCISSORS] => 3,
+        [RockPaperScissors::PAPER, RockPaperScissors::ROCK] => 1,
+        [RockPaperScissors::PAPER, RockPaperScissors::PAPER] => 5,
+        [RockPaperScissors::PAPER, RockPaperScissors::SCISSORS] => 9,
+        [RockPaperScissors::SCISSORS, RockPaperScissors::ROCK] => 7,
+        [RockPaperScissors::SCISSORS, RockPaperScissors::PAPER] => 2,
+        [RockPaperScissors::SCISSORS, RockPaperScissors::SCISSORS] => 6,
+        _ => 0,
+    }
+}
+
 fn main() {
-    let elves_calories_stat = read_num_records("data/input01.txt");
-    let mut elves_calories = elves_calories_stat
+    let round_records: Vec<Vec<RockPaperScissors>> =
+        read_round_records("../../../data/input02.prod");
+
+    let total_score: u32 = round_records
         .iter()
-        .map(|r| r.iter().sum::<u32>())
-        .collect::<Vec<u32>>();
+        .map(|round| parse_round(round.to_vec()))
+        .sum();
 
-    elves_calories.sort_by(|a, b| b.cmp(a));
-
-    println!("The max calorie is {:?}", elves_calories.first().unwrap());
-
-    elves_calories.sort();
-    elves_calories.reverse();
-    println!(
-        "The total calories from top three elves are {:?}",
-        elves_calories.iter().take(3).sum::<u32>()
-    );
+    // println!("{:?}", round_records);
+    println!("{:?}", total_score);
 }
